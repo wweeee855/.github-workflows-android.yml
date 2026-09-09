@@ -13,6 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # Настройка Java (нужна для сборки Android UI)
     - name: set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -20,15 +21,18 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    # Выдаем права на запуск сборщика Gradle
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: chmod +x gradlew || true
 
-    # Сборка обычного графического APK-файла
-    - name: Build with Gradle
-      run: ./gradlew assembleRelease
+    # Запуск сборки APK
+    - name: Build APK
+      run: ./gradlew assembleDebug
 
+    # Сохраняем готовый файл
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: graphical-app-apk
-        path: app/build/outputs/apk/release/*.apk
+        path: app/build/outputs/apk/debug/*.apk
+        

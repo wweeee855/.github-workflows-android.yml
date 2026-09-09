@@ -1,0 +1,44 @@
+name: Build OpenFlux for Android
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Позволяет запускать сборку вручную кнопкой
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Шаг 1: Установка языка Go (Golang)
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21' # Стабильная версия для большинства сетевых Go-инструментов
+
+    # Шаг 2: Установка Android SDK и NDK
+    - name: Install Android NDK
+      uses: android-actions/setup-android@v3
+      with:
+        ndk-version: '25.2.9519653' # Стандартная стабильная версия NDK
+
+    # Шаг 3: Сборка проекта с помощью скрипта автора
+    - name: Run build script
+      run: |
+        chmod +x ./build_android.sh
+        # Прописываем путь к NDK, который требует скрипт
+        export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/25.2.9519653
+        ./build_android.sh
+
+    # Шаг 4: Сохранение скомпилированных файлов
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: openflux-android-binaries
+        path: |
+          ./*
+          !./.git
+          
